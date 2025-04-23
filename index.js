@@ -1,13 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const ngrok = require("ngrok");
 const userRoutes = require("./routes/userRoutes");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const PORT = 3000;
+const PORT = 8000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(cors());
 app.use("/users", userRoutes);
 
 mongoose
@@ -23,47 +26,12 @@ mongoose
   })
   .catch((err) => console.error("MongoDB connection error:", err));
 
-let users = [
-  { id: 1, name: "Alice" },
-  { id: 2, name: "Bob" },
-];
-
-// GET all users
-app.get("/users", (req, res) => {
-  res.json(users);
-});
-
-// GET single user
-app.get("/users/:id", (req, res) => {
-  const user = users.find((u) => u.id === parseInt(req.params.id));
-  if (!user) return res.status(404).send("User not found");
-  res.json(user);
-});
-
-// POST create new user
-app.post("/users", (req, res) => {
-  const newUser = {
-    id: users.length + 1,
-    name: req.body.name,
-  };
-  users.push(newUser);
-  res.status(201).json(newUser);
-});
-
-// PUT update user
-app.put("/users/:id", (req, res) => {
-  const user = users.find((u) => u.id === parseInt(req.params.id));
-  if (!user) return res.status(404).send("User not found");
-  user.name = req.body.name;
-  res.json(user);
-});
-
-// DELETE user
-app.delete("/users/:id", (req, res) => {
-  users = users.filter((u) => u.id !== parseInt(req.params.id));
-  res.send("User deleted");
-});
-
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  // try {
+  //   const url = await ngrok.connect(PORT); // this starts ngrok tunnel
+  //   console.log(`ngrok tunnel: ${url}`);
+  // } catch (err) {
+  //   console.error("Failed to start ngrok tunnel", err);
+  // }
 });
