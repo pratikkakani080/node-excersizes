@@ -15,18 +15,16 @@ exports.getUser = async (req, res) => {
 
 // CREATE user
 exports.createUser = async (req, res) => {
-  const user = new User({ name: req.body.name });
+  const user = new User(req.body);
   await user.save();
   res.status(201).json(user);
 };
 
 // UPDATE user
 exports.updateUser = async (req, res) => {
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    { name: req.body.name },
-    { new: true }
-  );
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   if (!user) return res.status(404).send("User not found");
   res.json(user);
 };
